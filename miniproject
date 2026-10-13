@@ -1,0 +1,180 @@
+import java.util.*;
+abstract class User{
+    String name;
+    String gmail;
+    long number;
+    String password;
+    User(){
+        System.out.println("---------ELLARUKUM UNAVU-----------");
+    }
+    User(String name,String gmail,long number){
+        this.name=name;
+        this.gmail=gmail;
+        this.number=number;
+    }
+    Scanner sc=new Scanner(System.in);
+    void login(){
+        System.out.print("Username: ");
+        name=sc.nextLine();
+        System.out.println();
+        System.out.print("Password: ");
+        password=sc.nextLine();
+        System.out.println(name+" logged in");
+    }
+    abstract void logout();
+}
+class Donor extends User{
+    Donor(){
+        System.out.println("Welcome You to Donote Food to the Needed People");
+    }
+    Donor(String name,String password){
+        super.name=name;
+        super.password=password;
+    }
+    Donor(String name,String gmail,long number){
+        super(name,gmail,number);
+    }
+    
+    void logout(){
+        System.out.println(name+" logged out");
+    }
+    void Foodpost(){
+        Fooditem fooditem=new Fooditem();
+        fooditem.items();
+        
+    }
+}
+class Receiver extends User{
+    Receiver(){
+        System.out.println("Welcome you to End your Hungry!");
+    }
+    Receiver(String name,String password){
+        super.name=name;
+        super.password=password;
+    }
+    Receiver(String name,String gmail,long number){
+        super(name,gmail,number);
+    }
+    void logout(){
+        System.out.println(name+" logged out");
+    }
+    void ViewFoodPost(Fooditem ob){
+        ob.display();
+    }
+}
+class Foodpost{
+    static void ViewFoodPost(Fooditem ob){
+        System.out.println("Food Item: "+ ob.fooditem);
+        System.out.println("Quantity: "+ob.quantity);
+        System.out.println("Address: "+ob.address);
+        System.out.println("Mobile Number: "+ob.mobile);
+    }
+}
+
+class Fooditem{
+    String fooditem;
+    int quantity;
+    String address;
+    long mobile;
+    void items(){
+    Scanner sc=new Scanner(System.in);
+    System.out.print("Enter the Food Item: ");
+    fooditem=sc.nextLine();
+    System.out.print("Enter the Quantity: ");
+    quantity=sc.nextInt();
+    System.out.print("Enter the Address: ");
+    address=sc.nextLine();
+    sc.next();
+    System.out.print("Enter the Mobile Number:");
+    mobile=sc.nextLong();
+    }
+    void display(){
+        Foodpost.ViewFoodPost(this);
+    }
+    Fooditem object(){
+        return this;
+        }
+    
+}
+public class ellarukuunavu{
+    public static void main(String args[]){
+        Scanner sc=new Scanner(System.in);
+        String name;
+        String password;
+        int session=1;
+        int choice;
+        System.out.print("Username: ");
+        name=sc.nextLine();
+        System.out.println();
+        System.out.print("Password: ");
+        password=sc.nextLine();
+        System.out.println(name+" logged in");
+        Fooditem f=new Fooditem();
+        while(true){
+            System.out.println("Choose your Role: ");
+            System.out.println("1-Donor");
+            System.out.println("2-Reciver");
+            System.out.println("3-Exit");
+            choice=sc.nextInt();
+            sc.nextLine();
+        switch(choice){ 
+            case 1:
+                if(session==0){
+                System.out.print("Username: ");
+                name=sc.nextLine();
+                System.out.println();
+                System.out.print("Password: ");
+                password=sc.nextLine();
+                }
+                Donor d=new Donor(name,password);
+                int x;
+                while(true){
+                    System.out.println("1-Post-Food      2-Logout");
+                    x=sc.nextInt();
+                    if(x==1){
+                       System.out.println("-------POST FOOD ITEMS--------");
+                        f.items();
+                    }
+                    else if(x==2){
+                        d.logout();
+                        session=0;break;
+                    }
+                    else{
+                        System.out.println("Invalid choice");
+                    }
+                }break;
+            case 2:
+                if(session==0){
+                System.out.print("Username: ");
+                name=sc.nextLine();
+                System.out.println();
+                System.out.print("Password: ");
+                password=sc.nextLine();
+                }
+                Receiver r=new Receiver(name,password);
+                int y;
+                while(true){
+                    System.out.println("1-View Food-Post      2-Logout");
+                    y=sc.nextInt();
+                    if(y==1){
+                       // System.out.prinln("        AVAILABLE FOOD ITEMS      ");
+                        Fooditem f1=f.object();
+                        r.ViewFoodPost(f1);
+                    }
+                    else if(y==2){
+                        r.logout();
+                        session=0;
+                        break;}
+                        else{
+                            System.out.println("Invalid choice");}
+                }break;
+            case 3: 
+                sc.close();
+                return;
+            default:System.out.println("Invalid choice");
+        }
+        
+    }
+    
+    }
+}
