@@ -1,0 +1,502 @@
+import java.util.*;
+import java.io.*;
+public class ellarukuunavu{
+    public static void main(String args[]) throws IOException{
+        Scanner sc=new Scanner(System.in);
+        String uname;
+        String password;
+        int session=1;
+        int choice;
+        int pickup;
+        int op;
+        ArrayList<String> username=new ArrayList<>();
+        ArrayList<String> username1=new ArrayList<>();
+        Passwordverifier pv=new Passwordverifier();
+        File file=new File("DonationHistory.dat");
+        File file1=new File("ReceivedHistory.dat");
+        File file2=new File("Username.txt");
+       // DataInputStream uin=new DataInputStream(new FileInputStream(file2));
+        String urname;
+        DataOutputStream uout=new DataOutputStream(new FileOutputStream(file2,true));
+        try{
+            Thread.sleep(3000);
+            System.out.println("  ===========================================================================================================");
+            System.out.println(" ||   ___                     ___                                                                           ||");
+            System.out.println(" ||  |    |    |        /\\   |   |  |     | | / |     | |\\  /|     |     | |\\   |    /\\  \\      / |     |   ||");
+            System.out.println(" ||  |--- |    |       /  \\  |---   |     | |/  |     | | \\/ |     |     | | \\  |   /  \\  \\    /  |     |   ||");
+            System.out.println(" ||  |    |    |      /----\\ |   \\  |     | |\\  |     | |    |     |     | |  \\ |  /----\\  \\  /   |     |   ||");
+            System.out.println(" ||   ---  ---- ---- /      \\|    \\  -----  | \\  -----  |    |      -----  |   \\| /      \\  \\/     -----    ||");
+            System.out.println("  ===========================================================================================================");
+            Thread.sleep(3000);
+        }
+        catch(InterruptedException e){
+            System.out.println("Main method is Interrupted");
+        }
+        System.out.println("1-Login");
+        System.out.println("2-Create New Account");
+        while(true){
+        op=Integer.parseInt(sc.nextLine().trim());
+        if(op!=1&&op!=2){
+        System.out.println("Invalid input");continue;}
+        System.out.print("Username: ");
+        uname=sc.nextLine();
+        //username.add(uname);
+        //uout.writeUTF(uname);
+        
+        //System.out.println();
+        password=pv.passwordverifier(sc);
+        if(op==1){
+            try(DataInputStream uin=new DataInputStream(new FileInputStream(file2))){
+        while(true){
+            urname=uin.readUTF();
+            username1.add(urname);
+        }
+        }
+        catch(EOFException e){if(username1.contains(uname)){System.out.println("Found");System.out.println(uname + " signed in");break;}
+        else {System.out.println("Invalid Username");continue;}
+        }
+        }
+        else if(op==2){
+        uout.writeUTF(uname);
+        System.out.println(uname+" logged in");
+        Profile p=new Profile();
+        p.profile();
+        break;}
+        }
+        Fooditem[] f=new Fooditem[100];
+        int i=0;
+        
+        while(true){
+            System.out.println("Choose Your Role: ");
+            System.out.println(" -----------------");
+            System.out.println("|   1-Donor       |");
+            System.out.println("|   2-Reciver     |");
+            System.out.println(" -----------------");
+            System.out.println("3-Exit");
+            System.out.print("Enter Your choice: ");
+            try{
+            choice=sc.nextInt();
+            sc.nextLine();//uin.close();
+        switch(choice){ 
+            case 1:username1.clear();
+                if(session==0){
+                System.out.println("1-Login");
+                System.out.println("2-Create New Account");
+                while(true){
+                op=Integer.parseInt(sc.nextLine().trim());
+                if(op!=1&&op!=2){
+                System.out.println("Invalid input");continue;}
+                System.out.print("Username: ");
+                uname=sc.nextLine();
+                //username.add(uname);
+                //uout.writeUTF(uname);
+                password=pv.passwordverifier(sc);
+                if(op==1){
+                try(DataInputStream uin=new DataInputStream(new FileInputStream(file2))){
+                while(true){
+                    urname=uin.readUTF();
+                    username1.add(urname);
+                }
+                }
+                catch(EOFException e){if(username1.contains(uname)){System.out.println("Found");System.out.println(uname + " logged in");break;}
+                else {System.out.println("Invalid Username");continue;}
+                }}
+                else if(op==2){
+                    //System.out.print("Username: ");
+                    //uname=sc.nextLine();
+                    //password=pv.passwordverifier(sc);
+                    uout.writeUTF(uname);
+                    System.out.println(uname + " signed in");
+                    Profile p=new Profile();
+                    p.profile();break;
+                }}}
+               Donor d=new Donor(uname,password);
+               int x;
+                while(true){
+                    System.out.println(" -------------------------");
+                    System.out.println("|   1-Post-Food           |");
+                    System.out.println("|   2-Donation History    |");
+                    System.out.println("|   3-Logout              |");
+                    System.out.println(" -------------------------");
+                    try{
+                    System.out.print("Enter Your choice: ");
+                    x=sc.nextInt();
+                    if(x==1){
+                       System.out.println("-------POST FOOD ITEMS--------");
+                       ObjectOutputStream dout;
+                    while(true){
+                        f[i]=new Fooditem();
+                        f[i].items();
+                        if(file.exists()&&file.length()>0){
+                        dout=new MyObjectOutputStream(new FileOutputStream(file,true));}
+                        else{
+                        dout=new ObjectOutputStream(new FileOutputStream(file));}
+                        dout.writeObject(f[i]);
+                            i++;break;
+                    }dout.close();//uout.close();
+                    }
+                    else if(x==3){
+                        d.logout();
+                        session=0;break;
+                    }
+                    else if(x==2){
+                        try(ObjectInputStream din=new ObjectInputStream(new FileInputStream(file))){
+                        Fooditem[] f2=new Fooditem[100];
+                        int a=0;
+                        while(true){
+                        f2[a]=(Fooditem)din.readObject();
+                        f2[a].display();
+                        a++;
+                        }
+                        }
+                        catch(EOFException e){
+                            System.out.println("End of the File");
+                        }
+                        catch(ClassNotFoundException e){
+                            System.out.println("Class not found");
+                        }
+                        catch(FileNotFoundException e){
+                            System.out.println("No Food is Donated");
+                        }
+                    }
+                    else if(x==4){System.out.println("usernames:");
+                        for(String u:username1)System.out.println(u);
+                    }
+                    else{
+                        System.out.println("Invalid choice");
+                    }
+                    }
+                    catch(InputMismatchException e){
+                        System.out.println("Enter the valid input");
+                        sc.nextLine();
+                    }
+                }break;
+            case 2:
+                username1.clear();
+                if(session==0){
+                System.out.println("1-Login");
+                System.out.println("2-Create New Account");
+                while(true){
+                op=Integer.parseInt(sc.nextLine().trim());
+                if(op!=1&&op!=2){
+                System.out.println("Invalid input");continue;}
+                System.out.print("Username: ");
+                uname=sc.nextLine();
+                //username.add(uname);
+                //uout.writeUTF(uname);
+                password=pv.passwordverifier(sc);
+                if(op==1){
+                try(DataInputStream uin=new DataInputStream(new FileInputStream(file2))){
+                while(true){
+                    urname=uin.readUTF();
+                    username1.add(urname);
+                }
+                }
+                catch(EOFException e){if(username1.contains(uname)){System.out.println("Found");System.out.println(uname + " logged in");break;}
+                else {System.out.println("Invalid Username");continue;}
+                }}
+                else if(op==2){
+                    //System.out.print("Username: ");
+                    //uname=sc.nextLine();
+                    //password=pv.passwordverifier(sc);
+                    uout.writeUTF(uname);
+                    System.out.println(uname + " signed in");
+                    Profile p=new Profile();
+                    p.profile();break;
+                }}}
+                Receiver r=new Receiver(uname,password);
+                int y;
+                while(true){
+                    System.out.println(" -----------------------");
+                    System.out.println("|  1-View Food-Post     |");
+                    System.out.println("|  2-ReceivedHistory    |");
+                    System.out.println("|  3-Logout             |");
+                    System.out.println(" -----------------------");
+                    System.out.print("Enter Your choice: ");
+                    try{
+                    y=sc.nextInt();
+                    if(y==1){
+                        ObjectOutputStream rout;
+                        System.out.println("-------AVAILABLE FOOD ITEMS------------");
+                        int count=0;
+                        for(int k=i-1;k>=0;k--){
+                            if(f[k]!=null){
+                                count=1;
+                                System.out.println("---------Food-Post-"+k+"----------");
+                                f[k].display();
+                                /*Fooditem f1=f[k].object();
+                                r.ViewFoodPost(f1);*/
+                        }
+                        }
+                        if(count==0){
+                            System.out.println("No Food Post");
+                        }
+                        else{
+                        System.out.println("Enter the Food-Post list to Pickup: ");
+                        int temp=sc.nextInt();
+                        if(f[temp]!=null){pickup=temp;
+                        if(file1.exists()&&file1.length()>0){
+                        rout=new MyObjectOutputStream(new FileOutputStream(file1,true));}
+                        else{
+                            file1.createNewFile();
+                        rout=new ObjectOutputStream(new FileOutputStream(file1));}
+                        rout.writeObject(f[pickup]);
+                        rout.close();
+                        f[pickup]=null;
+                        }else{
+                        System.out.println("Invalid input");}}
+                    }
+                    else if(y==3){
+                        r.logout();
+                        session=0;
+                        break;}
+                    else if(y==2){
+                        ObjectInputStream rin;
+                        try{
+                        Fooditem[] f2=new Fooditem[100];
+                        if(file1.exists()&&file1.length()>0){
+                        rin=new ObjectInputStream(new FileInputStream(file1));
+                        int a=0;
+                        while(true){
+                        f2[a]=(Fooditem)rin.readObject();
+                        f2[a].display();
+                        a++;
+                        }
+                        }
+                        else System.out.println("No Food items are pickedup");
+                        
+                        }
+                        catch(EOFException e){
+                            System.out.println("End of the File");
+                        }
+                        catch(ClassNotFoundException e){
+                            System.out.println("Class not found");
+                        }
+                    }
+                    else{
+                            System.out.println("Invalid choice");}
+                    }
+                    catch(InputMismatchException e){
+                        System.out.println("Enter the valid input");
+                        sc.nextLine();
+                    }
+                }break;
+            case 3: 
+                sc.close();
+                uout.close();
+                return;
+            default:System.out.println("Invalid choice");
+        }
+            }
+            catch(InputMismatchException e){
+                System.out.println("Enter the valid input");
+                sc.nextLine();
+            }
+        
+    }
+    
+    }
+}
+abstract class User{
+    String uname;
+    String password;
+    Personalinfo pi1= new Personalinfo();
+    User(){
+        System.out.println("---------ELLARUKUM UNAVU-----------");
+    }
+    User(String uname,String gmail,long number){
+        this.uname=uname;
+        pi1.gmail=gmail;
+        pi1.number=number;
+    }
+    User(String name,String gmail,long number,String address,String landmark,int pincode){
+        pi1.name=name;
+        pi1.gmail=gmail;
+        pi1.number=number;
+        pi1.address=address;
+        pi1.landmark=landmark;
+        pi1.pincode=pincode;
+        }
+    Scanner sc=new Scanner(System.in);
+    void login(){
+        System.out.print("Username: ");
+        this.uname=sc.nextLine();
+        System.out.println();
+        System.out.print("Password: ");
+        this.password=sc.nextLine();
+        System.out.println(uname+" logged in");
+    }
+    abstract void logout();
+}
+class Donor extends User{
+    Donor(){
+        System.out.println("Welcome You to Donote Food to the Needed People");
+    }
+    Donor(String uname,String password){
+        super.uname=uname;
+        super.password=password;
+    }
+    Donor(String uname,String gmail,long number){
+        super(uname,gmail,number);
+    }
+    
+    void logout(){
+        System.out.println(uname+" logged out from Donor");
+    }
+    void Foodpost(){
+        Fooditem fooditem=new Fooditem();
+        fooditem.items();
+        
+    }
+}
+class Receiver extends User{
+    Receiver(){
+        System.out.println("Welcome you to End your Hungry!");
+    }
+    Receiver(String uname,String password){
+        super.uname=uname;
+        super.password=password;
+    }
+    Receiver(String uname,String gmail,long number){
+        super(uname,gmail,number);
+    }
+    void logout(){
+        System.out.println(uname+" logged out from Receiver");
+    }
+    void ViewFoodPost(Fooditem ob){
+        ob.display();
+    }
+}
+class Foodpost{
+    static void ViewFoodPost(Fooditem ob){
+        System.out.println("Food Item: "+ ob.fooditem);
+        System.out.println("Quantity: "+ob.quantity);
+        System.out.println("Address: "+ob.address);
+        System.out.println("Mobile Number: "+ob.mobile);
+    }
+}
+
+class Fooditem implements Serializable{
+    String fooditem;
+    int quantity;
+    String address;
+    long mobile;
+    void items() {
+    Scanner sc=new Scanner(System.in);
+    System.out.print("Enter the Food Item: ");
+    fooditem=sc.nextLine();
+    while(true){
+    try{
+    System.out.print("Enter the Quantity: ");
+    quantity=sc.nextInt();
+    sc.nextLine();break;
+    }
+    catch(InputMismatchException e){
+        System.out.println("Enter the valid input");
+        sc.nextLine();
+    }
+    }
+    System.out.print("Enter the Address: ");
+    address=sc.nextLine();
+    while(true){
+    try{
+     System.out.print("Enter the Mobile Number:");
+    mobile=sc.nextLong();
+    if(String.valueOf(mobile).matches("\\d{10}")) break;
+    else{System.out.println("Invalid Number");continue;}
+    }
+    catch(InputMismatchException e){
+        System.out.println("Invalid input");
+        sc.nextLine();
+    }
+    }
+    }
+    void display(){
+        System.out.println(" --------------------------------------------");
+        System.out.println("|  Food Item: "+ fooditem + " ".repeat(31-fooditem.length())+"|");
+        System.out.println("|  Quantity: "+quantity+" ".repeat(32-String.valueOf(quantity).length())+"|");
+        System.out.println("|  Address: "+address+ " ".repeat(33-address.length())+"|");
+        System.out.println("|  Mobile Number: "+mobile+" ".repeat(17)+"|");
+        System.out.println(" --------------------------------------------");
+       // Foodpost.ViewFoodPost(this);
+    }
+    Fooditem object(){
+        return this;
+        }
+}
+class Profile  {
+    void profile(){
+        Personalinfo pi =new Personalinfo();
+        Scanner sc=new Scanner(System.in);
+        System.out.println("-------------PROFILE--------------");
+        System.out.print("Name:");
+        pi.name=sc.nextLine();
+        while(true){
+        System.out.print("Email:");
+        pi.gmail=sc.nextLine();
+        if(pi.gmail.matches(".+@gmail\\.com")) break;
+        else {System.out.println("Invalid Gmail Format");continue;}
+        }
+        while(true){
+        System.out.print("Number:");
+        pi.number=sc.nextLong();
+        sc.nextLine();
+        if(String.valueOf(pi.number).matches("\\d{10}"))break;
+        else{System.out.println("Invalid Number");continue;}
+        }
+        System.out.print("Address:");
+        pi.address=sc.nextLine();
+        System.out.print("Landmark:");
+        pi.landmark=sc.nextLine();
+        while(true){
+        System.out.print("Pincode:");
+        pi.pincode=sc.nextInt();
+        if(String.valueOf(pi.pincode).matches("\\d{6}")) break;
+        else{System.out.println("Invalid Pincode");continue;}
+        }
+    }
+} 
+class Personalinfo{
+    String name;
+    String gmail;
+    long number;
+    String address;
+    int pincode;
+    String landmark;
+}        
+class Passwordverifier{
+    String passwordverifier(Scanner sc){
+        String password;
+        while(true){
+        System.out.print("Password: ");
+        password=sc.nextLine();
+        if(password.matches(".*[a-z]+.*")){
+            if(password.matches(".*[A-Z]+.*")){
+                if(password.matches(".*\\d+.*")){
+                    if(password.matches(".*[^a-zA-Z\\d\\s]+.*")){
+                        if(password.matches(".{8,}"))
+                            break;
+                        else
+                            System.out.println("Password must contains atleast 8 characters");continue;
+                        }
+                    else{
+                        System.out.println("Password must contains atleast one special character");continue;}
+                }
+                else{
+                    System.out.println("Password must contains atleast one digit");continue;}
+                }
+            else{
+                System.out.println("Password must contains atleast one uppercase character");continue;}
+                }
+        else{
+            System.out.println("Password must contains atleast one lowercase character");continue;}
+        }
+        return password;
+    }
+}
+class MyObjectOutputStream extends ObjectOutputStream{
+    MyObjectOutputStream(OutputStream out)throws IOException{
+    super(out);}
+    protected void writeStreamHeader() throws IOException{
+    reset();}
+}
